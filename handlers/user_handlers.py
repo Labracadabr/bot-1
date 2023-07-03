@@ -1,11 +1,14 @@
 import time
-from aiogram import Router
+from aiogram import Router, Bot
 from aiogram.filters import Command, CommandStart
 from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKeyboardRemove
 from lexic.lexic import LEXICON_RU
 from datetime import datetime
 from random import choice
 from game_logic import cities, log, first_letters, book, rule, podskazka
+from bot import main
+# from main import bot
+
 
 # Инициализируем роутер уровня модуля
 router: Router = Router()
@@ -25,9 +28,10 @@ button_stop: KeyboardButton = KeyboardButton(text='/stop')
 keyboard_start: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_read, button_play]], resize_keyboard=True)
 keyboard_ingame: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_help, button_read, button_stop]], resize_keyboard=True)
 
+admins = ["992863889"]
 
 @router.message(Command(commands=['start']))
-async def process_start_command(message: Message):
+async def process_start_command(message: Message, bot: Bot):
     m = message.from_user
     user = str(m.id)
     log('logs.json', 'logs', f'{datetime.now().strftime("%d/%m/%Y %H:%M")}, {m.full_name}, @{m.username}, id {user},'
@@ -37,6 +41,10 @@ async def process_start_command(message: Message):
     # book[user] = {"used": [], "bot_word": '', "player_word": '', mode: 'Hard'}
 
     await message.answer(text=LEXICON_RU['/start'], reply_markup=keyboard_start)
+
+    if user not in admins:
+        for i in admins:
+            await bot.send_message(text=f'id {user} {m.full_name} @{m.username}', chat_id=i) #, disable_notification=True)
 
 
 # /play
