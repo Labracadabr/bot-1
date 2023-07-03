@@ -114,13 +114,11 @@ async def process_help_command(message: Message):
         await message.answer(podskazka(book[user]["help_word"]))
         book[user]["help_word"] = 'й'
 
-
-
     else:
-        await message.answer('Так мы еще не начали, жми /play')
+        await message.answer('Так мы еще не начали, жми /start')
 
 
-# read
+# /read
 @router.message(Command(commands=['read']))
 async def process_read_command(message: Message):
     user = str(message.from_user.id)
@@ -132,6 +130,15 @@ async def process_read_command(message: Message):
     if book.get(user):
         time.sleep(1)
         await message.answer(f'Сейчас тебе на {rule(book[user]["bot_word"]).upper()}!')
+
+
+# /info о проекте
+@router.message(Command(commands=['info']))
+async def process_read_command(message: Message):
+    user = str(message.from_user.id)
+    log('logs.json', str(user), '/read')
+
+    await message.answer(text=LEXICON_RU['/info'], parse_mode='HTML')
 
 
 # /add

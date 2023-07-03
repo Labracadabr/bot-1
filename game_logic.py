@@ -30,7 +30,9 @@ def rule(w):
 def log(file, key, item):
     with open(file, encoding='utf-8') as f:
         data = json.load(f)
+
     data.setdefault(key, []).append(item)
+
     with open(file, 'w', encoding='utf-8') as f:
         json.dump(data, f, indent=2, ensure_ascii=False)
 # не рабочий варик
