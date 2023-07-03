@@ -16,6 +16,15 @@ router: Router = Router()
 # player_word: str = ''
 # used: list = []
 
+# кнопки как доп опция ответа
+button_play: KeyboardButton = KeyboardButton(text='/play')
+button_read: KeyboardButton = KeyboardButton(text='/read')
+button_help: KeyboardButton = KeyboardButton(text='/help')
+button_stop: KeyboardButton = KeyboardButton(text='/stop')
+# расклады клавиатур из этих кнопок
+keyboard_start: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_read, button_play]], resize_keyboard=True)
+keyboard_ingame: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_help, button_read, button_stop]], resize_keyboard=True)
+
 
 @router.message(Command(commands=['start']))
 async def process_start_command(message: Message):
@@ -27,12 +36,7 @@ async def process_start_command(message: Message):
 
     # book[user] = {"used": [], "bot_word": '', "player_word": '', mode: 'Hard'}
 
-    # Две кнопки как опция ответа
-    button_1: KeyboardButton = KeyboardButton(text='/play')
-    button_2: KeyboardButton = KeyboardButton(text='/read')
-    keyboard: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_1, button_2]], resize_keyboard=True)
-
-    await message.answer(text=LEXICON_RU['/start'], reply_markup=keyboard)
+    await message.answer(text=LEXICON_RU['/start'], reply_markup=keyboard_start)
 
 
 # /play
@@ -50,7 +54,7 @@ async def process_play_command(message: Message):
     book[user]['bot_word'] = choice(cities[r])
     book[user]['used'].append(book[user]['bot_word'])
 
-    await message.answer(f'Я начну: {book[user]["bot_word"]}')
+    await message.answer(f'Я начну: {book[user]["bot_word"]}', reply_markup=keyboard_ingame)
     log('logs.json', user, book[user]["bot_word"].upper())
 
 
@@ -82,10 +86,10 @@ async def process_cancel_command(message: Message):
         for j in book[user]['used']:
             end += (j + ', ')
         await message.answer(f'Конец, мы назвали {len(book[user]["used"])} города(ов): {end[:-2]}.')
-        book[user].clear()
+        del book[user]
     else:
         await message.answer('Так мы еще не начали, жми /start')
-
+    print(book)
 
 # /help подсказка
 @router.message(Command(commands=['help']))
@@ -168,7 +172,7 @@ async def process_other_text_answers(message: Message):
 
         # проверка уникальности хода
         if book[user]["player_word"].capitalize() in book[user]["used"]:
-            await message.answer('Этот город уже был!')
+            await message.answer('Этот город уже был!', reply_markup=keyboard_ingame)
 
         # Проверка на знание ботом города из хода юзера
         elif book[user]['mode'] == 'Easy' or book[user]["player_word"].capitalize() in cities[
@@ -190,7 +194,7 @@ async def process_other_text_answers(message: Message):
             book[user]["used"].append(book[user]["bot_word"])
 
         else:
-            await message.answer(f'Не знаю такого, попробуй еще - тебе на {rule(book[user]["bot_word"]).upper()}')
+            await message.answer(f'Не знаю такого, попробуй еще - тебе на {rule(book[user]["bot_word"]).upper()}', reply_markup=keyboard_ingame)
     else:
-        await message.answer(f'Первая буква не подходит, тебе на {rule(book[user]["bot_word"]).upper()}')
+        await message.answer(f'Первая буква не подходит, тебе на {rule(book[user]["bot_word"]).upper()}', reply_markup=keyboard_ingame)
     print(user, book[user]["used"])

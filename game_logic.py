@@ -54,10 +54,10 @@ def podskazka(word):
 
     hidden_letters = "*" * (len(word) - 2)  # скрытые символы *
 
-    # выбираем две случайные позиции для скрытия букв
+    # выбираем случайные позиции для скрытия букв
     indices = random.sample(range(1, len(word) - 1), stars)
 
-    # формируем новое слово с видимыми и скрытыми буквами
+    # формируем измененное слово
     new_word = ""
     for i in range(len(word)):
         if i in indices:
