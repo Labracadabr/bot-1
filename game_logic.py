@@ -1,6 +1,22 @@
 import json
 import random
 
+# Игровые данные, правила и переменные
+with open("cities_rus.json", "r", encoding='utf-8') as f:
+    cities = json.load(f)
+
+# Допустимые первые буквы. Тут все кроме Ъ Ь
+first_letters = [
+    'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц',
+    'ч', 'ш', 'ы', 'э', 'ю', 'я']
+
+# сколько знаем городов
+dlina = 0
+for i in cities:
+    dlina += len(cities.get(i))
+
+book: dict = {}
+
 
 # возвращает букву, на которую должно быть след слово
 def rule(w):
@@ -25,22 +41,7 @@ def log(file, key, item):
 #         json.dump(data, f2, indent=2, ensure_ascii=False)
 
 
-# Игровые данные, правила и переменные
-
-with open("cities_rus.json", "r", encoding='utf-8') as f:
-    cities = json.load(f)
-first_letters = [
-    'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц',
-    'ч', 'ш', 'ы', 'э', 'ю', 'я']
-
-# сколько знаем городов
-dlina = 0
-for i in cities:
-    dlina += len(cities.get(i))
-
-book: dict = {}
-
-#  Москва > М**ква
+#  Новосибирск >random> Нов**иб*рск
 def podskazka(word):
     l = len(word)
     if l < 7:
@@ -66,6 +67,15 @@ def podskazka(word):
             new_word += word[i]
 
     return new_word
+
+
+#  Палит админу действия юзеров. Первые три аргумента вписать такими, как есть тут
+def intel(bot, message, admins, silence: bool):
+    user = str(message.from_user.id)
+    if user not in admins:
+        for i in admins:
+            await bot.send_message(text=f'#{message.text} id{user} {message.from_user.full_name}'
+                                        f' @{message.from_user.username}', chat_id=i, disable_notification=silence)
 
 
 

@@ -5,7 +5,7 @@ from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKey
 from lexic.lexic import LEXICON_RU
 from datetime import datetime
 from random import choice
-from game_logic import cities, log, first_letters, book, rule, podskazka
+from game_logic import cities, log, first_letters, book, rule, podskazka, intel
 from bot import main
 # from main import bot
 
@@ -42,14 +42,13 @@ async def process_start_command(message: Message, bot: Bot):
 
     await message.answer(text=LEXICON_RU['/start'], reply_markup=keyboard_start)
 
-    if user not in admins:
-        for i in admins:
-            await bot.send_message(text=f'id {user} {m.full_name} @{m.username}', chat_id=i) #, disable_notification=True)
+    # заметно сообщить админу, кто нажал старт
+    intel(bot, m, admins, False)
 
 
 # /play
 @router.message(Command(commands=['play']))
-async def process_play_command(message: Message):
+async def process_play_command(message: Message, bot: Bot):
     user = str(message.from_user.id)
 
     # Создание учета текущей игры
@@ -65,6 +64,8 @@ async def process_play_command(message: Message):
     await message.answer(f'Я начну: {book[user]["bot_word"]}', reply_markup=keyboard_ingame)
     log('logs.json', user, book[user]["bot_word"].upper())
 
+    # незаметно сообщить админу, кто нажал play
+    intel(bot, message, admins, True)
 
 
 # gamemode
