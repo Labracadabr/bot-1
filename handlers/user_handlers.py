@@ -179,27 +179,26 @@ async def process_text_answer(message: Message):
 async def process_other_text_answers(message: Message):
     user = str(message.from_user.id)
 
-    book[user]["player_word"] = str(message.text).capitalize()
+    player_word = str(message.text).capitalize()
+    book[user]["player_word"] = player_word
 
     # проверка первой буквы из хода юзера
-    if book[user]["player_word"][0].lower() == rule(book[user]["bot_word"]).lower():
+    if player_word[0].lower() == rule(book[user]["bot_word"]).lower():
 
         # проверка уникальности хода
-        if book[user]["player_word"].capitalize() in book[user]["used"]:
+        if player_word.capitalize() in book[user]["used"]:
             await message.answer('Этот город уже был!', reply_markup=keyboard_ingame)
 
         # Проверка на знание ботом города из хода юзера
-        elif book[user]['mode'] == 'Easy' or book[user]["player_word"].capitalize() in cities[
-            book[user]["player_word"].lower()[0]]:
-            book[user]["used"].append(book[user]["player_word"].capitalize())
+        elif book[user]['mode'] == 'Easy' or player_word.capitalize() in cities[player_word.lower()[0]]:
 
-            log('logs.json', user, f'{book[user]["player_word"].capitalize()} ')
-
+            book[user]["used"].append(player_word.capitalize())
+            log('logs.json', user, f'{player_word.capitalize()} ')
 
             # ответ бота
             while book[user]["bot_word"] in book[user]["used"] or book[user]["bot_word"][0].lower() != rule(
-                    book[user]["player_word"]).lower():
-                book[user]["bot_word"] = choice(cities[rule(book[user]["player_word"])])
+                    player_word).lower():
+                book[user]["bot_word"] = choice(cities[rule(player_word)])
             await message.answer(book[user]["bot_word"])
 
             log('logs.json', user, f'{book[user]["bot_word"].upper()} ')
