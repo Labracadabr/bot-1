@@ -7,7 +7,6 @@ from datetime import datetime
 from random import choice
 from game_logic import cities, log, first_letters, book, rule, podskazka  # , intel
 from bot import main
-from unidecode import unidecode
 
 # from main import bot
 
