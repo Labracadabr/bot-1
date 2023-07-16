@@ -8,7 +8,7 @@ with open("cities_rus.json", "r", encoding='utf-8') as f:
 # Допустимые первые буквы. Тут все кроме Ъ Ь
 first_letters = [
     'а', 'б', 'в', 'г', 'д', 'е', 'ж', 'з', 'и', 'й', 'к', 'л', 'м', 'н', 'о', 'п', 'р', 'с', 'т', 'у', 'ф', 'х', 'ц',
-    'ч', 'ш', 'ы', 'э', 'ю', 'я']
+    'ч', 'ш', 'щ', 'ы', 'э', 'ю', 'я']
 
 # сколько знаем городов
 dlina = 0
@@ -72,11 +72,11 @@ def podskazka(word):
 
 
 #  Палит админу действия юзеров. Первые три аргумента вписать такими, как есть тут
-def intel(bot, message, admins, silence: bool):
+async def intel(bot, message, admins, silence: bool):
     user = str(message.from_user.id)
     if user not in admins:
         for i in admins:
-            await bot.send_message(text=f'#{message.text} id{user} {message.from_user.full_name}'
+            await bot.send_message(text=f'{message.text} id{user} {message.from_user.full_name}'
                                         f' @{message.from_user.username}', chat_id=i, disable_notification=silence)
 
 

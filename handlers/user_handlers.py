@@ -5,8 +5,10 @@ from aiogram.types import KeyboardButton, Message, ReplyKeyboardMarkup, ReplyKey
 from lexic.lexic import LEXICON_RU
 from datetime import datetime
 from random import choice
-from game_logic import cities, log, first_letters, book, rule, podskazka, intel
+from game_logic import cities, log, first_letters, book, rule, podskazka  # , intel
 from bot import main
+from unidecode import unidecode
+
 # from main import bot
 
 
@@ -20,15 +22,16 @@ router: Router = Router()
 # used: list = []
 
 # кнопки как доп опция ответа
-button_play: KeyboardButton = KeyboardButton(text='/play')
+button_start: KeyboardButton = KeyboardButton(text='/start')
 button_read: KeyboardButton = KeyboardButton(text='/read')
 button_help: KeyboardButton = KeyboardButton(text='/help')
 button_stop: KeyboardButton = KeyboardButton(text='/stop')
 # расклады клавиатур из этих кнопок
-keyboard_start: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_read, button_play]], resize_keyboard=True)
-keyboard_ingame: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_help, button_read, button_stop]], resize_keyboard=True)
+keyboard_start: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_read]], resize_keyboard=True)
+keyboard_ingame: ReplyKeyboardMarkup = ReplyKeyboardMarkup(keyboard=[[button_help, button_start, button_read, button_stop]], resize_keyboard=True)
 
 admins = ["992863889"]
+
 
 @router.message(Command(commands=['start']))
 async def process_start_command(message: Message, bot: Bot):
@@ -43,13 +46,10 @@ async def process_start_command(message: Message, bot: Bot):
     await message.answer(text=LEXICON_RU['/start'], reply_markup=keyboard_start)
 
     # заметно сообщить админу, кто нажал старт
-    intel(bot, m, admins, False)
-
-
-# /play
-@router.message(Command(commands=['play']))
-async def process_play_command(message: Message, bot: Bot):
-    user = str(message.from_user.id)
+    if user not in admins:
+        for i in admins:
+            await bot.send_message(text=f'{message.text} id{user} {message.from_user.full_name}'
+                                        f' @{message.from_user.username}', chat_id=i, disable_notification=False)
 
     # Создание учета текущей игры
     book.setdefault(user, {'used': [], 'bot_word': '', 'player_word': '', 'help_word': 'й', 'mode': 'Hard'})
@@ -63,9 +63,6 @@ async def process_play_command(message: Message, bot: Bot):
 
     await message.answer(f'Я начну: {book[user]["bot_word"]}', reply_markup=keyboard_ingame)
     log('logs.json', user, book[user]["bot_word"].upper())
-
-    # незаметно сообщить админу, кто нажал play
-    intel(bot, message, admins, True)
 
 
 # gamemode
@@ -99,6 +96,7 @@ async def process_cancel_command(message: Message):
     else:
         await message.answer('Так мы еще не начали, жми /start')
     print(book)
+
 
 # /help подсказка
 @router.message(Command(commands=['help']))
@@ -166,7 +164,7 @@ async def add(message: Message):
 
 
 # если ввод не на доступную букву
-@router.message(lambda x: x.text and rule(str(x.text).lower()) not in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
+@router.message(lambda x: x.text and x.text.lower()[-1] not in 'абвгдеёжзийклмнопрстуфхцчшщъыьэюя')
 async def process_text_answer(message: Message):
     user = str(message.from_user.id)
 
