@@ -1,5 +1,14 @@
 import json
+import os
 import random
+from datetime import datetime
+
+# файл логов
+logs = 'logs.tsv'
+if not os.path.isfile(logs):
+    with open(logs, 'w', encoding='utf-8') as f:
+        print('Отсутствующий файл создан:', logs)
+        print('\t'.join(('Time', 'User', 'Action')), file=f)
 
 # Игровые данные, правила и переменные
 with open("cities_rus.json", "r", encoding='utf-8') as f:
@@ -25,22 +34,19 @@ def rule(w):
         if w[-k - 1] in first_letters:
             return w[-k - 1]
 
-
-# Запись данных item в указанный json file по ключу key
 def log(file, key, item):
-    with open(file, encoding='utf-8') as f:
-        data = json.load(f)
+    key = str(key)
+    t = str(datetime.now()).split('.')[0]
+    # сохранить в csv
+    try:
+        with open(file, 'a', encoding='utf-8') as f:
+            print('\t'.join((t, str(key), repr(item))), file=f)
+    except Exception as e:
+        item += f'\n🔴Ошибка записи:\n{e}'
 
-    data.setdefault(key, []).append(item)
-
-    with open(file, 'w', encoding='utf-8') as f:
-        json.dump(data, f, indent=2, ensure_ascii=False)
-# не рабочий варик
-# def log(file, key, item):
-#     with open(file, encoding='utf-8') as f1, open(file, 'w', encoding='utf-8') as f2:
-#         data = json.load(f1)
-#         data.setdefault(key, []).append(item)
-#         json.dump(data, f2, indent=2, ensure_ascii=False)
+    # дублировать логи в консоль
+    log_text = str(key)+' '+str(item)
+    print(t.split()[-1], log_text)
 
 
 #  Новосибирск >random> Нов**иб*рск
